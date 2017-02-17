@@ -1,68 +1,71 @@
-let countdown;
-let verifyTimer = 1;
-let verifyTask = 1;
-const timerDisplay = document.querySelector('.display-time-left');
-const instructionDisplay = document.querySelector('.display-instruction');
-const currentTaskDisplay = document.querySelector('.display-current-task');
-const buttons = document.querySelector('.timer-button');
-const audio = document.querySelector('audio');
-const seconds = document.querySelector('.timer-button').dataset.time;
+'use strict';
 
-const playAudio = () => { audio.play(); }
+var countdown = void 0;
+var verifyTimer = 0;
+var verifyTask = 0;
+var timerDisplay = document.querySelector('.display-time-left');
+var instructionDisplay = document.querySelector('.display-instruction');
+var currentTaskDisplay = document.querySelector('.display-current-task');
+var buttons = document.querySelector('.timer-button');
+var audio = document.querySelector('audio');
+var seconds = document.querySelector('.timer-button').dataset.time;
 
-const verifyPomodoro = () => {
-	if(verifyTimer == 7){
+var playAudio = function playAudio() {
+	audio.play();
+};
+
+var verifyPomodoro = function verifyPomodoro() {
+	if (verifyTimer == 7) {
 		playAudio();
 		timer(1800);
 		instructionDisplay.textContent = "Time to a BIG rest";
-	}else if(verifyTimer%2 == 0){
-			verifyTask++;			
-			playAudio();
-			timer(1500);
-			instructionDisplay.textContent = "Time to work";
-			currentTaskDisplay.textContent = `Current pomo:  ${verifyTask}`;
-		}else{			
-			playAudio();
-			timer(300);
-			instructionDisplay.textContent = "Time to rest";			
-		}
-}
+	} else if (verifyTimer % 2 == 0) {
+		verifyTask++;
+		playAudio();
+		timer(1500);
+		instructionDisplay.textContent = "Time to work";
+		currentTaskDisplay.textContent = 'Current pomo:  ' + verifyTask;
+	} else {
+		playAudio();
+		timer(300);
+		instructionDisplay.textContent = "Time to rest";
+	}
+};
 
-const timer = seconds => {
+var timer = function timer(seconds) {
 	clearInterval(countdown);
-	const now = Date.now();
-	const then = now + seconds * 1000;
+	var now = Date.now();
+	var then = now + seconds * 1000;
 
-	countdown = setInterval(() => {
-		const secondsLeft = Math.round((then - Date.now()) / 1000);
+	countdown = setInterval(function () {
+		var secondsLeft = Math.round((then - Date.now()) / 1000);
 
-		if(secondsLeft <= 0 && verifyTimer < 8){
+		if (secondsLeft <= 0 && verifyTimer < 8) {
 			clearInterval(countdown);
 			verifyPomodoro();
 			verifyTimer++;
-			
-		}else if(secondsLeft <= 0){
+		} else if (secondsLeft < 0) {
 			clearInterval(countdown);
 			return;
 		}
-		displayTimeLeft(secondsLeft);		
+		displayTimeLeft(secondsLeft);
 	}, 1000);
-}
+};
 
-const displayTimeLeft = seconds => {
-	const minutes = Math.floor(seconds / 60);
-	const remainderSeconds = seconds % 60;
-	const display = `${minutes}:${remainderSeconds < 10 ? '0' : ''}${remainderSeconds}`;
+var displayTimeLeft = function displayTimeLeft(seconds) {
+	var minutes = Math.floor(seconds / 60);
+	var remainderSeconds = seconds % 60;
+	var display = minutes + ':' + (remainderSeconds < 10 ? '0' : '') + remainderSeconds;
 	timerDisplay.textContent = display;
 	document.title = display;
-}
+};
 
-const startTimer = () => {	
-	verifyTimer = 1;
+var startTimer = function startTimer() {
+	verifyTimer = 0;
+	verifyTask = 0;
+	currentTaskDisplay.textContent = 'Current pomo:  ' + verifyTask;
 	displayTimeLeft(seconds);
 	timer(seconds);
-	instructionDisplay.textContent = "Time to work";
-	currentTaskDisplay.textContent = `Current Pomo:  ${verifyTask}`;
-}
+};
 
 buttons.addEventListener('click', startTimer);
