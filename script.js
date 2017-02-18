@@ -3,15 +3,29 @@
 var countdown = void 0;
 var verifyTimer = 0;
 var verifyTask = 0;
+var verifyExecution = true;
+var keepSeconds = 0;
 var timerDisplay = document.querySelector('.display-time-left');
 var instructionDisplay = document.querySelector('.display-instruction');
 var currentTaskDisplay = document.querySelector('.display-current-task');
-var buttons = document.querySelector('.timer-button');
+var buttonStart = document.querySelector('.timer-button');
+var buttonPause = document.querySelector('.pause-button');
 var audio = document.querySelector('audio');
 var seconds = document.querySelector('.timer-button').dataset.time;
 
 var playAudio = function playAudio() {
 	audio.play();
+};
+
+var executionCode = function executionCode() {
+	if (verifyExecution == true) {
+		verifyExecution = false;
+		buttonPause.textContent = "Continue";
+	} else {
+		verifyExecution = true;
+		timer(keepSeconds);
+		buttonPause.textContent = "Pause";
+	}
 };
 
 var verifyPomodoro = function verifyPomodoro() {
@@ -38,17 +52,20 @@ var timer = function timer(seconds) {
 	var then = now + seconds * 1000;
 
 	countdown = setInterval(function () {
-		var secondsLeft = Math.round((then - Date.now()) / 1000);
+		if (verifyExecution == true) {
+			var secondsLeft = Math.round((then - Date.now()) / 1000);
+			keepSeconds = secondsLeft;
 
-		if (secondsLeft <= 0 && verifyTimer < 8) {
-			clearInterval(countdown);
-			verifyPomodoro();
-			verifyTimer++;
-		} else if (secondsLeft < 0) {
-			clearInterval(countdown);
-			return;
+			if (secondsLeft <= 0 && verifyTimer < 8) {
+				clearInterval(countdown);
+				verifyPomodoro();
+				verifyTimer++;
+			} else if (secondsLeft < 0) {
+				clearInterval(countdown);
+				return;
+			}
+			displayTimeLeft(secondsLeft);
 		}
-		displayTimeLeft(secondsLeft);
 	}, 1000);
 };
 
@@ -66,6 +83,8 @@ var startTimer = function startTimer() {
 	currentTaskDisplay.textContent = 'Current pomo:  ' + verifyTask;
 	displayTimeLeft(seconds);
 	timer(seconds);
+	document.querySelector('.pause-button').style.pointerEvents = "visible";
 };
 
-buttons.addEventListener('click', startTimer);
+buttonStart.addEventListener('click', startTimer);
+buttonPause.addEventListener('click', executionCode);
